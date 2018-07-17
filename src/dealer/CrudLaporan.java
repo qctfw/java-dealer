@@ -6,7 +6,7 @@
 package dealer;
 
 import java.awt.Color;
-import java.io.File;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -34,15 +34,13 @@ public class CrudLaporan extends javax.swing.JFrame {
     JasperViewer jasperviewer;
     JasperDesign jasperdesign;
     JasperReport jasperreport;
-    String lokasifolder = this.getClass().getClassLoader().getResource("").getPath() + "/dealer/";
-    File file_struk = new File(lokasifolder + "strukpembayaran.jrxml");
-    File file_stok = new File(lokasifolder + "reportstok.jrxml");
-    File file_periode = new File(lokasifolder + "reportperiode.jrxml");
+    String file_struk = "/dealer/strukpembayaran.jrxml";
+    String file_stok = "/dealer/reportstok.jrxml";
+    String file_periode = "/dealer/reportperiode.jrxml";
     /**
      * Creates new form CrudLaporan
      */
     public CrudLaporan() {
-        System.out.println();
         initComponents();
         setPilihanTransaksi(false);
         isianStruk();
@@ -128,9 +126,10 @@ public class CrudLaporan extends javax.swing.JFrame {
      * Menampilkan report tanpa parameter
      * @param file Lokasi File
     */
-    void cetakReport(File file) {
+    void cetakReport(String fileName) {
         try {
-            jasperdesign = JRXmlLoader.load(file);
+            InputStream reportFile = CrudLaporan.class.getResourceAsStream(fileName);
+            jasperdesign = JRXmlLoader.load(reportFile);
             jasperreport = JasperCompileManager.compileReport(jasperdesign);
             jasperprint = JasperFillManager.fillReport(jasperreport, null, cn);
             jasperviewer = new JasperViewer(jasperprint, false);
@@ -148,9 +147,10 @@ public class CrudLaporan extends javax.swing.JFrame {
      * @param parameter Nama Patokan
      * @param isiparameter Isi Patokan
     */
-    void cetakReport(File file, String parameter, String isiparameter){
+    void cetakReport(String fileName, String parameter, String isiparameter){
         try {
-            jasperdesign = JRXmlLoader.load(file);
+            InputStream reportFile = CrudLaporan.class.getResourceAsStream(fileName);
+            jasperdesign = JRXmlLoader.load(reportFile);
             HashMap isian = new HashMap();
             isian.put(parameter, isiparameter);
             jasperreport = JasperCompileManager.compileReport(jasperdesign);
@@ -322,7 +322,7 @@ public class CrudLaporan extends javax.swing.JFrame {
                             JOptionPane.showMessageDialog(null, "Harap pilih Kode Transaksi", "Validasi", JOptionPane.INFORMATION_MESSAGE);
                         }
                         else {
-                        cetakReport(file_struk, "kd_transaksi", combokode.getSelectedItem().toString());
+                            cetakReport(file_struk, "kd_transaksi", combokode.getSelectedItem().toString());
                         }
                     }
                     else {

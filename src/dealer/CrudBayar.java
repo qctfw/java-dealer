@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
-import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -37,7 +37,6 @@ public class CrudBayar extends javax.swing.JFrame {
     JasperDesign jasperdesign;
     JasperReport jasperreport;
     CrudTransaksi transaksi = new CrudTransaksi();
-    File file = new File("src/dealer/strukpembayaran.jrxml");
     private long bayar, kembalian;
     ImageIcon pensil = new ImageIcon(getClass().getResource("/dealer/ic_pencil.png"));
     ImageIcon ceklis = new ImageIcon(getClass().getResource("/dealer/ic_checkmark.png"));
@@ -54,7 +53,6 @@ public class CrudBayar extends javax.swing.JFrame {
         if (!txtpembeli.getText().equals("") && !txtbayar.getText().equals("")) {
             if (bayar >= transaksi.total) {
                 int jawab = JOptionPane.showConfirmDialog(null, "Yakin ingin membayar?\nBayar: " + transaksi.numberToMoney(bayar) + "\nKembalian: " + transaksi.numberToMoney(kembalian), "Konfirmasi", JOptionPane.YES_NO_OPTION);
-                System.out.println(String.valueOf(jawab));
                 if (jawab == 0) {
                    try {
                        String sql = "INSERT INTO tb_transaksi VALUES(?,?,?,?,NULL)";
@@ -69,7 +67,6 @@ public class CrudBayar extends javax.swing.JFrame {
                             rs = st.executeQuery("SELECT kd_barang, stok FROM tb_order WHERE kd_transaksi = '" + transaksi.kodetransaksi + "'");
                             while (rs.next()) {
                                 sql = "UPDATE tb_stok SET stok = stok - " + rs.getString("stok") + " WHERE kd_barang = " + rs.getString("kd_barang");
-                                System.out.println(sql);
                                 st = cn.createStatement();
                                 st.executeUpdate(sql);
                             }
@@ -127,7 +124,6 @@ public class CrudBayar extends javax.swing.JFrame {
     
     protected void cekEdit(char c){
         boolean bool;
-        System.out.println(c);
         bool = c == 'p'; // p = by entering, b = by button
         if (btnedit.getName().equals("edit")) {
             txtbayar.setEditable(true);
@@ -167,6 +163,7 @@ public class CrudBayar extends javax.swing.JFrame {
     
     public void cetakStruk(){
         try {
+            InputStream file = CrudBayar.class.getResourceAsStream("/dealer/strukpembayaran.jrxml");
             jasperdesign = JRXmlLoader.load(file);
             HashMap isian = new HashMap();
             isian.put("kd_transaksi", transaksi.kodetransaksi);
@@ -177,7 +174,8 @@ public class CrudBayar extends javax.swing.JFrame {
             jasperviewer.setVisible(true);
         }
         catch (JRException je) {
-            JOptionPane.showMessageDialog(null, "Report Error.\nError: " + je);
+            JOptionPane.showMessageDialog(null, "Report Error.\nError: " + je.getMessage());
+            je.printStackTrace();
         }
     }
     /**
